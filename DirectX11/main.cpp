@@ -15,6 +15,8 @@
 //#include <d3dx10.h>
 //#include <xnamath.h>
 
+using namespace DirectX;
+
 IDXGISwapChain* SwapChain;
 ID3D11Device* d3d11Device;
 ID3D11DeviceContext* d3d11DevCon;
@@ -41,12 +43,12 @@ const float Height = 600.f;
 
 float angle;
 
-DirectX::XMMATRIX camView;
-DirectX::XMMATRIX camProjection;
+XMMATRIX camView;
+XMMATRIX camProjection;
+XMVECTOR camPosition;
+XMVECTOR camTarget;
+XMVECTOR camUp;
 
-DirectX::XMVECTOR camPosition;
-DirectX::XMVECTOR camTarget;
-DirectX::XMVECTOR camUp;
 
 bool InitializeDirect3d11App(HINSTANCE hInstance);
 bool InitScene();
@@ -58,7 +60,7 @@ void CreateUniformBuffer();
 void CreateViewport();
 void InitCamera();
 
-int mainloop();
+int Mainloop();
 void UpdateScene();
 void DrawScene();
 
@@ -126,10 +128,10 @@ void DrawScene() {
     d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
     d3d11DevCon->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-    DirectX::XMMATRIX model = DirectX::XMMatrixIdentity();
-    DirectX::XMVECTOR rotAxis = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationAxis(rotAxis, DirectX::XMConvertToRadians(angle));
-    DirectX::XMMATRIX translation = DirectX::XMMatrixTranslation(0.0f, 0.0f, 2.0f);
+    XMMATRIX model = XMMatrixIdentity();
+    XMVECTOR rotAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMMATRIX rotation = XMMatrixRotationAxis(rotAxis, XMConvertToRadians(angle));
+    XMMATRIX translation = XMMatrixTranslation(0.0f, 0.0f, 2.0f);
 
     uniformObj.model = model * rotation * translation;
     uniformObj.view = camView;
@@ -143,11 +145,11 @@ void DrawScene() {
 }
 
 void InitCamera() {
-    camPosition     = DirectX::XMVectorSet(0.0f, 5.0f, -8.0f, 0.0f);
-    camTarget       = DirectX::XMVectorSet(0.0f, 2.0f, 0.0f, 0.0f);
-    camUp           = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    camView         = DirectX::XMMatrixLookAtLH(camPosition, camTarget, camUp);
-    camProjection   = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(60.f), Width / Height, 1.0f, 1000.0f);
+    camPosition   = XMVectorSet(0.0f, 1.0f, 8.0f, 0.0f);
+    camTarget     = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    camUp         = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    camView       = XMMatrixLookAtLH(camPosition, camTarget, camUp);
+    camProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.f), Width / Height, 1.0f, 1000.0f);
 }
 
 void CreateViewport() {
@@ -265,7 +267,7 @@ void CleanUp() {
     uniformBuffer->Release();
 }
 
-int mainloop() {
+int Mainloop() {
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
     while (true) {
@@ -429,7 +431,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 0;
     }
 
-    mainloop();
+    Mainloop();
 
     CleanUp();
 
