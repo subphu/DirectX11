@@ -22,6 +22,21 @@
 
 using namespace DirectX;
 
+struct Vertex {
+    XMFLOAT3 position;
+    XMFLOAT4 color;
+    Vertex(
+        float x, float y, float z,
+        float r, float g, float b, float a
+    ) : position(x, y, z), color(r, g, b, a) {}
+};
+
+struct UniformObj {
+    XMMATRIX model;
+    XMMATRIX view;
+    XMMATRIX projection;
+};
+
 IDXGISwapChain* SwapChain;
 ID3D11Device* d3d11Device;
 ID3D11DeviceContext* d3d11DevCon;
@@ -49,14 +64,22 @@ LPDIRECTINPUT8 DirectInput;
 const float Width = 900.f;
 const float Height = 600.f;
 
-float angle;
+float angle = 0.f;
 
 XMMATRIX camView;
 XMMATRIX camProjection;
+
 XMVECTOR camPosition;
 XMVECTOR camTarget;
 XMVECTOR camUp;
 
+UniformObj uniformObj;
+
+D3D11_INPUT_ELEMENT_DESC layout[] = {
+    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+};
+UINT numElements = ARRAYSIZE(layout);
 
 bool InitializeDirect3d11App(HINSTANCE hInstance);
 bool InitScene();
@@ -83,29 +106,6 @@ LRESULT CALLBACK WndProc(HWND hWnd,
     UINT msg,
     WPARAM wParam,
     LPARAM lParam);
-
-struct Vertex {
-    DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT4 color;
-    Vertex(
-        float x, float y, float z,
-        float r, float g, float b, float a
-    ) : position(x, y, z), color(r, g, b, a) {}
-};
-
-struct UniformObj {
-    DirectX::XMMATRIX model;
-    DirectX::XMMATRIX view;
-    DirectX::XMMATRIX projection;
-};
-
-UniformObj uniformObj;
-
-D3D11_INPUT_ELEMENT_DESC layout[] = {
-    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-    { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-};
-UINT numElements = ARRAYSIZE(layout);
 
 
 bool InitScene() {
