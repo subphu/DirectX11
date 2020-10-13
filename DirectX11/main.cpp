@@ -67,6 +67,9 @@ float DefaultCursorX = Width / 2;
 float DefaultCursorY = Height / 2;
 
 float angle = 0.f;
+float yaw = 0.f;
+float pitch = 0.f;
+float roll = 0.f;
 
 XMMATRIX camView;
 XMMATRIX camProjection;
@@ -74,6 +77,8 @@ XMMATRIX camProjection;
 XMVECTOR camPosition;
 XMVECTOR camTarget;
 XMVECTOR camUp;
+XMVECTOR camFront;
+XMVECTOR camRight;
 
 UniformObj uniformObj;
 
@@ -136,6 +141,15 @@ void DetectInput() {
 
 void UpdateScene() {
     angle += 0.001;
+
+    camFront = XMVector3Normalize(XMVectorSet(
+        cos(XMConvertToRadians(yaw)) * cos(XMConvertToRadians(pitch)),
+        sin(XMConvertToRadians(pitch)),
+        sin(XMConvertToRadians(yaw)) * cos(XMConvertToRadians(pitch)),
+        1.0f
+    ));
+    camRight = XMVector3Normalize(XMVector3Cross(camFront, camUp));
+    camView = XMMatrixLookAtLH(camPosition, camPosition + camFront, camUp);
 }
 
 void DrawScene() {
@@ -163,8 +177,15 @@ void InitCamera() {
     camPosition   = XMVectorSet(0.0f, 1.0f, 8.0f, 0.0f);
     camTarget     = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
     camUp         = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    camFront      = XMVector3Normalize(camTarget - camPosition);
+    camRight      = XMVector3Normalize(XMVector3Cross(camFront, camUp));
     camView       = XMMatrixLookAtLH(camPosition, camTarget, camUp);
     camProjection = XMMatrixPerspectiveFovLH(XMConvertToRadians(60.f), Width / Height, 1.0f, 1000.0f);
+
+    XMFLOAT3 tempFront;
+    XMStoreFloat3(&tempFront, camFront);
+    yaw     = XMConvertToDegrees(atan2(tempFront.z, tempFront.x));
+    pitch   = XMConvertToDegrees(atan2(tempFront.y, -tempFront.z));
 }
 
 void CreateViewport() {
