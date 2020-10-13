@@ -63,6 +63,8 @@ LPDIRECTINPUT8 DirectInput;
 
 const float Width = 900.f;
 const float Height = 600.f;
+float DefaultCursorX = Width / 2;
+float DefaultCursorY = Height / 2;
 
 float angle = 0.f;
 
@@ -317,6 +319,12 @@ bool InitDirectInput(HINSTANCE hInstance) {
     hr = DirectInput->CreateDevice(GUID_SysKeyboard, &DIKeyboard, NULL);
     hr = DIKeyboard->SetDataFormat(&c_dfDIKeyboard);
     hr = DIKeyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+
+    RECT rect;
+    GetWindowRect(hwnd, (LPRECT)&rect);
+    DefaultCursorX = rect.left + Width / 2;
+    DefaultCursorY = rect.top + Height / 2;
+    SetCursorPos(DefaultCursorX, DefaultCursorY);
 
     return true;
 }
