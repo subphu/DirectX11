@@ -158,6 +158,14 @@ void DetectInput() {
     if (keyboardState[DIK_Q] & 0x80) {
         camPosition += camUp * -0.001f;
     }
+
+    POINT cursor;
+    GetCursorPos(&cursor);
+
+    yaw   -= (cursor.x - DefaultCursorX);
+    pitch -= (cursor.y - DefaultCursorY);
+
+    SetCursorPos(DefaultCursorX, DefaultCursorY);
     return;
 }
 
