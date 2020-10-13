@@ -3,14 +3,19 @@
 #pragma comment( lib, "d3d11.lib" )       
 #pragma comment( lib, "dxgi.lib" )        
 #pragma comment( lib, "d3dcompiler.lib" ) 
+#pragma comment (lib, "dinput8.lib")
+#pragma comment (lib, "dxguid.lib")
 //#pragma comment(lib, "d3dx11.lib")
 //#pragma comment(lib, "d3dx10.lib")
 
+#include <iostream>
+#include <sstream>
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>        
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
+#include <dinput.h>
 //#include <d3dx11.h>
 //#include <d3dx10.h>
 //#include <xnamath.h>
@@ -34,9 +39,12 @@ ID3D10Blob* VS_Buffer;
 ID3D10Blob* PS_Buffer;
 ID3D11InputLayout* vertLayout;
 
+IDirectInputDevice8* DIKeyboard;
+
 LPCTSTR WndClassName = L"Triangle";
 HWND hwnd = NULL;
 HRESULT hr;
+LPDIRECTINPUT8 DirectInput;
 
 const float Width = 900.f;
 const float Height = 600.f;
@@ -59,6 +67,8 @@ void CreateIndexBuffer();
 void CreateUniformBuffer();
 void CreateViewport();
 void InitCamera();
+bool InitDirectInput(HINSTANCE hInstance);
+void DetectInput();
 
 int Mainloop();
 void UpdateScene();
@@ -117,10 +127,13 @@ bool InitScene() {
     return true;
 }
 
+void DetectInput() {
+
+
+}
+
 void UpdateScene() {
-    angle += 0.01;
-
-
+    angle += 0.001;
 }
 
 void DrawScene() {
@@ -286,11 +299,26 @@ int Mainloop() {
             DispatchMessage(&msg);
         }
         else {
+            DetectInput();
             UpdateScene();
             DrawScene();
         }
     }
     return msg.wParam;
+}
+
+bool InitDirectInput(HINSTANCE hInstance) {
+    hr = DirectInput8Create(hInstance,
+        DIRECTINPUT_VERSION,
+        IID_IDirectInput8,
+        (void**)&DirectInput,
+        NULL);
+
+    hr = DirectInput->CreateDevice(GUID_SysKeyboard, &DIKeyboard, NULL);
+    hr = DIKeyboard->SetDataFormat(&c_dfDIKeyboard);
+    hr = DIKeyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+
+    return true;
 }
 
 bool InitializeDirect3d11App(HINSTANCE hInstance) {
@@ -428,6 +456,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     if (!InitScene()) {
         MessageBox(0, L"Scene Initialization - Failed", L"Error", MB_OK);
+        return 0;
+    }
+
+    if (!InitDirectInput(hInstance)) {
+        MessageBox(0, L"Direct Input Initialization - Failed", L"Error", MB_OK);
         return 0;
     }
 
