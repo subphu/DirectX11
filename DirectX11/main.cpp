@@ -135,8 +135,30 @@ bool InitScene() {
 }
 
 void DetectInput() {
+    BYTE keyboardState[256];
 
+    DIKeyboard->Acquire();
+    DIKeyboard->GetDeviceState(sizeof(keyboardState), (LPVOID)&keyboardState);
 
+    if (keyboardState[DIK_W] & 0x80) {
+        camPosition += camFront * 0.001f;
+    }
+    if (keyboardState[DIK_S] & 0x80) {
+        camPosition += camFront * -0.001f;
+    }
+    if (keyboardState[DIK_A] & 0x80) {
+        camPosition += camRight * 0.001f;
+    }
+    if (keyboardState[DIK_D] & 0x80) {
+        camPosition += camRight * -0.001f;
+    }
+    if (keyboardState[DIK_E] & 0x80) {
+        camPosition += camUp * 0.001f;
+    }
+    if (keyboardState[DIK_Q] & 0x80) {
+        camPosition += camUp * -0.001f;
+    }
+    return;
 }
 
 void UpdateScene() {
